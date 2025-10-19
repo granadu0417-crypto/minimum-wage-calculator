@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알바비 계산기 - 단기알바, 일용직, 아르바이트 급여 계산</title>
+    <meta name="description" content="단기 아르바이트, 일용직 급여를 정확하게 계산합니다. 주휴수당, 시급, 일급, 주급 자동 계산. 2025년 최저시급 기준.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        nav {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        nav a:hover, nav a.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .quick-btn {
+            padding: 12px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #555;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .result-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .result-item.highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .result-value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .result-value .unit {
+            font-size: 0.6em;
+            margin-left: 5px;
+        }
+
+        .detail-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .detail-box h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .detail-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .detail-box li {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .detail-box li:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .info-box .title {
+            font-weight: bold;
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #0c5460;
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .warning-box .title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .tab-buttons {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                text-align: center;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💼 알바비 계산기</h1>
+            <p class="subtitle">단기알바 · 일용직 · 아르바이트 급여 계산</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">최저시급 계산기</a></li>
+                <li><a href="annual-salary.html">연봉 계산기</a></li>
+                <li><a href="work-hours.html">근로시간 계산기</a></li>
+                <li><a href="part-time.html" class="active">알바비 계산기</a></li>
+                <li><a href="minimum-wage-guide.html">최저시급 가이드</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>💰 알바비 계산</h2>
+
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('weekly')">주급 계산</button>
+                <button class="tab-btn" onclick="switchTab('daily')">일급 계산</button>
+                <button class="tab-btn" onclick="switchTab('monthly')">월급 계산</button>
+            </div>
+
+            <!-- 주급 계산 탭 -->
+            <div id="weeklyTab" class="tab-content active">
+                <div class="input-group">
+                    <label for="weeklyWage">시급 (원)</label>
+                    <input type="number" id="weeklyWage" value="10030" min="0" step="10">
+                </div>
+
+                <div class="quick-buttons">
+                    <button class="quick-btn" onclick="setWeeklyWage(10030)">최저시급<br>10,030원</button>
+                    <button class="quick-btn" onclick="setWeeklyWage(12000)">12,000원</button>
+                    <button class="quick-btn" onclick="setWeeklyWage(15000)">15,000원</button>
+                    <button class="quick-btn" onclick="setWeeklyWage(20000)">20,000원</button>
+                </div>
+
+                <div class="input-group">
+                    <label for="dailyHoursWeekly">하루 근무시간</label>
+                    <input type="number" id="dailyHoursWeekly" value="8" min="0" max="24" step="0.5">
+                </div>
+
+                <div class="input-group">
+                    <label for="workDays">주 근무일수</label>
+                    <input type="number" id="workDays" value="5" min="0" max="7" step="1">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeWeeklyHolidayPay" checked>
+                    <label for="includeWeeklyHolidayPay">주휴수당 포함 (주 15시간 이상 근무 시)</label>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateWeekly()">💵 주급 계산하기</button>
+
+                <div id="weeklyResults" style="display: none;">
+                    <div class="result-section">
+                        <div class="result-title">📊 주급 계산 결과</div>
+                        
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="result-label">주 근로시간</div>
+                                <div class="result-value" id="weeklyHours">-<span class="unit">시간</span></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">기본 주급</div>
+                                <div class="result-value" id="baseWeekly">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">주휴수당</div>
+                                <div class="result-value" id="weeklyHolidayPay">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">총 주급</div>
+                                <div class="result-value" id="totalWeekly">-<span class="unit">원</span></div>
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <h3>📋 상세 계산 내역</h3>
+                            <ul id="weeklyDetail"></ul>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="title">📌 주휴수당이란?</div>
+                        <ul>
+                            <li><strong>주 15시간 이상</strong> 근무 시 1주일에 유급휴일 1일 보장</li>
+                            <li>주휴수당 = 1일 소정근로시간 × 시급</li>
+                            <li>주 5일 근무 기준: 주급의 약 20%가 주휴수당</li>
+                            <li>개근 시에만 지급 (무단결근 시 미지급)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 일급 계산 탭 -->
+            <div id="dailyTab" class="tab-content">
+                <div class="input-group">
+                    <label for="dailyWage">시급 (원)</label>
+                    <input type="number" id="dailyWage" value="10030" min="0" step="10">
+                </div>
+
+                <div class="quick-buttons">
+                    <button class="quick-btn" onclick="setDailyWage(10030)">최저시급<br>10,030원</button>
+                    <button class="quick-btn" onclick="setDailyWage(12000)">12,000원</button>
+                    <button class="quick-btn" onclick="setDailyWage(15000)">15,000원</button>
+                    <button class="quick-btn" onclick="setDailyWage(20000)">20,000원</button>
+                </div>
+
+                <div class="input-group">
+                    <label for="hoursPerDay">1일 근무시간</label>
+                    <input type="number" id="hoursPerDay" value="8" min="0" max="24" step="0.5">
+                </div>
+
+                <div class="input-group">
+                    <label for="totalDays">총 근무일수</label>
+                    <input type="number" id="totalDays" value="10" min="1" step="1">
+                </div>
+
+                <button class="calculate-btn" onclick="calculateDaily()">💵 일급 계산하기</button>
+
+                <div id="dailyResults" style="display: none;">
+                    <div class="result-section">
+                        <div class="result-title">📊 일급 계산 결과</div>
+                        
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="result-label">1일 근무시간</div>
+                                <div class="result-value" id="dailyHoursResult">-<span class="unit">시간</span></div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">1일 급여 (일급)</div>
+                                <div class="result-value" id="oneDayPay">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">총 근무일수</div>
+                                <div class="result-value" id="totalDaysResult">-<span class="unit">일</span></div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">총 급여</div>
+                                <div class="result-value" id="totalDailyPay">-<span class="unit">원</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 월급 계산 탭 -->
+            <div id="monthlyTab" class="tab-content">
+                <div class="input-group">
+                    <label for="monthlyWage">시급 (원)</label>
+                    <input type="number" id="monthlyWage" value="10030" min="0" step="10">
+                </div>
+
+                <div class="quick-buttons">
+                    <button class="quick-btn" onclick="setMonthlyWage(10030)">최저시급<br>10,030원</button>
+                    <button class="quick-btn" onclick="setMonthlyWage(12000)">12,000원</button>
+                    <button class="quick-btn" onclick="setMonthlyWage(15000)">15,000원</button>
+                    <button class="quick-btn" onclick="setMonthlyWage(20000)">20,000원</button>
+                </div>
+
+                <div class="input-group">
+                    <label for="monthlyHoursSelect">월 근로시간</label>
+                    <select id="monthlyHoursSelect">
+                        <option value="209">주 40시간 (월 209시간)</option>
+                        <option value="174">주 35시간 (월 174시간)</option>
+                        <option value="157">주 30시간 (월 157시간)</option>
+                        <option value="130">주 25시간 (월 130시간)</option>
+                        <option value="custom">직접 입력</option>
+                    </select>
+                </div>
+
+                <div class="input-group" id="customMonthlyHoursGroup" style="display: none;">
+                    <label for="customMonthlyHours">월 근로시간 (직접 입력)</label>
+                    <input type="number" id="customMonthlyHours" value="209" min="0" max="400">
+                </div>
+
+                <button class="calculate-btn" onclick="calculateMonthly()">💵 월급 계산하기</button>
+
+                <div id="monthlyResults" style="display: none;">
+                    <div class="result-section">
+                        <div class="result-title">📊 월급 계산 결과</div>
+                        
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="result-label">월 근로시간</div>
+                                <div class="result-value" id="monthlyHoursResult">-<span class="unit">시간</span></div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">월급 (세전)</div>
+                                <div class="result-value" id="monthlyPayResult">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">월 실수령액 (예상)</div>
+                                <div class="result-value" id="netMonthlyPay">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">연봉 환산</div>
+                                <div class="result-value" id="annualEquivalent">-<span class="unit">원</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📚 알바 급여 안내</h2>
+            
+            <div class="info-box" style="margin-top: 0;">
+                <div class="title">💡 알바비 받을 때 꼭 확인하세요!</div>
+                <ul>
+                    <li><strong>최저시급 위반:</strong> 2025년 최저시급 10,030원 미만 지급 시 위법</li>
+                    <li><strong>주휴수당:</strong> 주 15시간 이상 근무 시 반드시 지급</li>
+                    <li><strong>연장수당:</strong> 1일 8시간 초과 또는 주 40시간 초과 시 1.5배</li>
+                    <li><strong>임금 지급일:</strong> 매월 1회 이상 일정한 날짜에 지급</li>
+                    <li><strong>임금명세서:</strong> 급여 지급 시 명세서 제공 의무</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <div class="title">⚠️ 알바 피해 예방 체크리스트</div>
+                <ul>
+                    <li>✅ 근로계약서 작성 (서명 전 꼼꼼히 확인)</li>
+                    <li>✅ 근로시간 및 시급 명확히 확인</li>
+                    <li>✅ 급여 지급일 및 지급 방식 확인</li>
+                    <li>✅ 주휴수당 지급 여부 확인 (주 15시간 이상)</li>
+                    <li>✅ 출퇴근 시간 기록 (사진, 메모 등)</li>
+                    <li>✅ 급여명세서 보관</li>
+                    <li>✅ 부당한 대우 시 즉시 신고 (고용노동부 1350)</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <div class="title">📞 알바 피해 신고 및 상담</div>
+                <ul>
+                    <li><strong>고용노동부 민원센터:</strong> 국번없이 1350</li>
+                    <li><strong>청년유니온:</strong> 02-2265-5108</li>
+                    <li><strong>알바노조:</strong> 02-2277-2225</li>
+                    <li><strong>온라인 신고:</strong> 고용노동부 홈페이지 (www.moel.go.kr)</li>
+                    <li><strong>임금체불 신고:</strong> 관할 지방고용노동청</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>알바비 계산기 2025 | 정확한 알바비 계산</p>
+        <p>실제 급여는 근로계약 및 사업장 규정에 따라 달라질 수 있습니다.</p>
+    </footer>
+
+    <script>
+        // 탭 전환
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            buttons.forEach(b => b.classList.remove('active'));
+            
+            if (tab === 'weekly') {
+                document.getElementById('weeklyTab').classList.add('active');
+                buttons[0].classList.add('active');
+            } else if (tab === 'daily') {
+                document.getElementById('dailyTab').classList.add('active');
+                buttons[1].classList.add('active');
+            } else {
+                document.getElementById('monthlyTab').classList.add('active');
+                buttons[2].classList.add('active');
+            }
+        }
+
+        // 월 근로시간 선택
+        document.getElementById('monthlyHoursSelect').addEventListener('change', function() {
+            const customGroup = document.getElementById('customMonthlyHoursGroup');
+            if (this.value === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+            }
+        });
+
+        // 시급 빠른 설정 함수들
+        function setWeeklyWage(amount) {
+            document.getElementById('weeklyWage').value = amount;
+            calculateWeekly();
+        }
+
+        function setDailyWage(amount) {
+            document.getElementById('dailyWage').value = amount;
+            calculateDaily();
+        }
+
+        function setMonthlyWage(amount) {
+            document.getElementById('monthlyWage').value = amount;
+            calculateMonthly();
+        }
+
+        // 주급 계산
+        function calculateWeekly() {
+            const hourlyWage = parseFloat(document.getElementById('weeklyWage').value) || 0;
+            const dailyHours = parseFloat(document.getElementById('dailyHoursWeekly').value) || 0;
+            const workDays = parseInt(document.getElementById('workDays').value) || 0;
+            const includeWeeklyHolidayPay = document.getElementById('includeWeeklyHolidayPay').checked;
+
+            if (hourlyWage <= 0) {
+                alert('시급을 입력해주세요.');
+                return;
+            }
+
+            const weeklyHours = dailyHours * workDays;
+            const baseWeeklyPay = Math.round(hourlyWage * weeklyHours);
+            
+            let weeklyHolidayPay = 0;
+            if (includeWeeklyHolidayPay && weeklyHours >= 15) {
+                weeklyHolidayPay = Math.round(hourlyWage * dailyHours);
+            }
+
+            const totalWeeklyPay = baseWeeklyPay + weeklyHolidayPay;
+
+            // 결과 표시
+            document.getElementById('weeklyHours').innerHTML = weeklyHours.toFixed(1) + '<span class="unit">시간</span>';
+            document.getElementById('baseWeekly').innerHTML = baseWeeklyPay.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('weeklyHolidayPay').innerHTML = weeklyHolidayPay.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('totalWeekly').innerHTML = totalWeeklyPay.toLocaleString() + '<span class="unit">원</span>';
+
+            // 상세 내역
+            const detailHTML = `
+                <li><span>시급</span><span>${hourlyWage.toLocaleString()}원</span></li>
+                <li><span>1일 근무시간</span><span>${dailyHours}시간</span></li>
+                <li><span>주 근무일수</span><span>${workDays}일</span></li>
+                <li><span>주 근로시간</span><span>${weeklyHours}시간</span></li>
+                <li><span>기본 주급</span><span>${baseWeeklyPay.toLocaleString()}원</span></li>
+                <li><span>주휴수당</span><span>${weeklyHolidayPay.toLocaleString()}원</span></li>
+                <li><span>총 주급</span><span>${totalWeeklyPay.toLocaleString()}원</span></li>
+            `;
+            document.getElementById('weeklyDetail').innerHTML = detailHTML;
+            document.getElementById('weeklyResults').style.display = 'block';
+        }
+
+        // 일급 계산
+        function calculateDaily() {
+            const hourlyWage = parseFloat(document.getElementById('dailyWage').value) || 0;
+            const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value) || 0;
+            const totalDays = parseInt(document.getElementById('totalDays').value) || 0;
+
+            if (hourlyWage <= 0) {
+                alert('시급을 입력해주세요.');
+                return;
+            }
+
+            const oneDayPay = Math.round(hourlyWage * hoursPerDay);
+            const totalPay = oneDayPay * totalDays;
+
+            document.getElementById('dailyHoursResult').innerHTML = hoursPerDay + '<span class="unit">시간</span>';
+            document.getElementById('oneDayPay').innerHTML = oneDayPay.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('totalDaysResult').innerHTML = totalDays + '<span class="unit">일</span>';
+            document.getElementById('totalDailyPay').innerHTML = totalPay.toLocaleString() + '<span class="unit">원</span>';
+
+            document.getElementById('dailyResults').style.display = 'block';
+        }
+
+        // 월급 계산
+        function calculateMonthly() {
+            const hourlyWage = parseFloat(document.getElementById('monthlyWage').value) || 0;
+            const hoursSelect = document.getElementById('monthlyHoursSelect').value;
+
+            let monthlyHours;
+            if (hoursSelect === 'custom') {
+                monthlyHours = parseFloat(document.getElementById('customMonthlyHours').value) || 209;
+            } else {
+                monthlyHours = parseFloat(hoursSelect);
+            }
+
+            if (hourlyWage <= 0) {
+                alert('시급을 입력해주세요.');
+                return;
+            }
+
+            const monthlyPay = Math.round(hourlyWage * monthlyHours);
+            const netPay = Math.round(monthlyPay * 0.88); // 약 12% 공제
+            const annualPay = monthlyPay * 12;
+
+            document.getElementById('monthlyHoursResult').innerHTML = monthlyHours + '<span class="unit">시간</span>';
+            document.getElementById('monthlyPayResult').innerHTML = monthlyPay.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('netMonthlyPay').innerHTML = netPay.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('annualEquivalent').innerHTML = annualPay.toLocaleString() + '<span class="unit">원</span>';
+
+            document.getElementById('monthlyResults').style.display = 'block';
+        }
+
+        // 페이지 로드 시 자동 계산
+        window.addEventListener('load', function() {
+            calculateWeekly();
+        });
+    </script>
+</body>
+</html>

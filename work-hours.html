@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>근로시간 계산기 - 연장수당, 야간수당, 휴일수당 계산</title>
+    <meta name="description" content="법정 근로시간을 확인하고 연장근로, 야간근로, 휴일근로 수당을 정확하게 계산합니다. 2025년 최저시급 기준.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        nav {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        nav a:hover, nav a.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="number"], input[type="time"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus, input[type="time"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .time-input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .result-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .result-item.highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .result-value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .result-value .unit {
+            font-size: 0.6em;
+            margin-left: 5px;
+        }
+
+        .breakdown-table {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .breakdown-table h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #555;
+        }
+
+        td.amount {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .total-row {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .info-box .title {
+            font-weight: bold;
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #0c5460;
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .warning-box .title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .time-input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⏱️ 근로시간 계산기</h1>
+            <p class="subtitle">연장 · 야간 · 휴일 수당 계산 | 법정 근로시간 확인</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">최저시급 계산기</a></li>
+                <li><a href="annual-salary.html">연봉 계산기</a></li>
+                <li><a href="work-hours.html" class="active">근로시간 계산기</a></li>
+                <li><a href="part-time.html">알바비 계산기</a></li>
+                <li><a href="minimum-wage-guide.html">최저시급 가이드</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>⏰ 근로시간 및 수당 계산</h2>
+            
+            <div class="input-group">
+                <label for="hourlyWage">시급 (원)</label>
+                <input type="number" id="hourlyWage" value="10030" min="0" step="10">
+            </div>
+
+            <div class="input-group">
+                <label>근무 시간</label>
+                <div class="time-input-row">
+                    <div>
+                        <label for="startTime" style="font-size: 0.9em; margin-bottom: 5px;">출근 시각</label>
+                        <input type="time" id="startTime" value="09:00">
+                    </div>
+                    <div>
+                        <label for="endTime" style="font-size: 0.9em; margin-bottom: 5px;">퇴근 시각</label>
+                        <input type="time" id="endTime" value="18:00">
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="breakTime">휴게시간 (분)</label>
+                <input type="number" id="breakTime" value="60" min="0" step="15">
+            </div>
+
+            <div class="input-group">
+                <label>근무 형태</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="isOvertime">
+                    <label for="isOvertime">연장근로 (주 40시간 초과 또는 1일 8시간 초과)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="isNight">
+                    <label for="isNight">야간근로 포함 (22:00~06:00)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="isHoliday">
+                    <label for="isHoliday">휴일근로 (주휴일 또는 법정공휴일)</label>
+                </div>
+            </div>
+
+            <div class="input-group" id="nightHoursGroup" style="display: none;">
+                <label for="nightHours">야간근로 시간 (시간)</label>
+                <input type="number" id="nightHours" value="0" min="0" max="24" step="0.5">
+            </div>
+
+            <button class="calculate-btn" onclick="calculateWorkHours()">💵 수당 계산하기</button>
+
+            <div id="results" style="display: none;">
+                <div class="result-section">
+                    <div class="result-title">📊 근로시간 및 수당 계산 결과</div>
+                    
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">총 근로시간</div>
+                            <div class="result-value" id="totalHours">-<span class="unit">시간</span></div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">기본급</div>
+                            <div class="result-value" id="basePay">-<span class="unit">원</span></div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">추가 수당</div>
+                            <div class="result-value" id="extraPay">-<span class="unit">원</span></div>
+                        </div>
+                        <div class="result-item highlight">
+                            <div class="result-label">총 급여</div>
+                            <div class="result-value" id="totalPay">-<span class="unit">원</span></div>
+                        </div>
+                    </div>
+
+                    <div class="breakdown-table">
+                        <h3>📋 수당 계산 내역</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>구분</th>
+                                    <th>시간</th>
+                                    <th>가산율</th>
+                                    <th class="amount">금액</th>
+                                </tr>
+                            </thead>
+                            <tbody id="breakdownBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="title">📌 수당 가산율 기준</div>
+                    <ul>
+                        <li><strong>연장근로:</strong> 통상임금의 50% 가산 (1.5배)</li>
+                        <li><strong>야간근로:</strong> 통상임금의 50% 가산 (1.5배)</li>
+                        <li><strong>휴일근로:</strong> 통상임금의 50% 가산 (1.5배)</li>
+                        <li><strong>휴일 + 연장:</strong> 통상임금의 100% 가산 (2배)</li>
+                        <li><strong>연장 + 야간:</strong> 각각 50% 가산 (2배)</li>
+                        <li><strong>휴일 + 연장 + 야간:</strong> 통상임금의 150% 가산 (2.5배)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📚 법정 근로시간 안내</h2>
+            
+            <div class="info-box" style="margin-top: 0;">
+                <div class="title">⏱️ 법정 근로시간</div>
+                <ul>
+                    <li><strong>1일 법정근로시간:</strong> 8시간 (휴게시간 별도)</li>
+                    <li><strong>1주 법정근로시간:</strong> 40시간</li>
+                    <li><strong>연장근로 한도:</strong> 1주 12시간까지 가능</li>
+                    <li><strong>최대 근로시간:</strong> 1주 52시간 (법정 40시간 + 연장 12시간)</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <div class="title">☕ 휴게시간 기준</div>
+                <ul>
+                    <li><strong>4시간 근로:</strong> 30분 이상 휴게</li>
+                    <li><strong>8시간 근로:</strong> 1시간 이상 휴게</li>
+                    <li>휴게시간은 근로시간에 포함되지 않음</li>
+                    <li>휴게시간은 근로자가 자유롭게 이용할 수 있어야 함</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <div class="title">⚠️ 주의사항</div>
+                <ul>
+                    <li>연장근로는 근로자의 동의가 있어야 합니다</li>
+                    <li>1주 12시간을 초과하는 연장근로는 불법입니다</li>
+                    <li>야간근로(22:00~06:00)는 50% 가산수당 지급이 의무입니다</li>
+                    <li>휴일근로 시 대체휴일 제공 또는 가산수당 지급이 필요합니다</li>
+                    <li>미성년자(18세 미만)는 1일 7시간, 1주 35시간 이내로 제한됩니다</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <div class="title">📞 근로시간 위반 신고</div>
+                <ul>
+                    <li><strong>고용노동부 민원마당:</strong> 국번없이 1350</li>
+                    <li><strong>근로감독관 신고:</strong> 관할 지방고용노동청</li>
+                    <li><strong>온라인 신고:</strong> 고용노동부 홈페이지 (www.moel.go.kr)</li>
+                    <li>익명 신고 가능, 신고자 보호 제도 운영</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>근로시간 계산기 2025 | 정확한 수당 계산</p>
+        <p>실제 수당은 사업장의 취업규칙 및 근로계약에 따라 달라질 수 있습니다.</p>
+    </footer>
+
+    <script>
+        // 야간근로 체크박스 이벤트
+        document.getElementById('isNight').addEventListener('change', function() {
+            const nightHoursGroup = document.getElementById('nightHoursGroup');
+            if (this.checked) {
+                nightHoursGroup.style.display = 'block';
+            } else {
+                nightHoursGroup.style.display = 'none';
+            }
+        });
+
+        function calculateWorkHours() {
+            const hourlyWage = parseFloat(document.getElementById('hourlyWage').value) || 0;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const breakTime = parseInt(document.getElementById('breakTime').value) || 0;
+            const isOvertime = document.getElementById('isOvertime').checked;
+            const isNight = document.getElementById('isNight').checked;
+            const isHoliday = document.getElementById('isHoliday').checked;
+            const nightHours = isNight ? (parseFloat(document.getElementById('nightHours').value) || 0) : 0;
+
+            if (hourlyWage <= 0 || !startTime || !endTime) {
+                alert('모든 정보를 입력해주세요.');
+                return;
+            }
+
+            // 근로시간 계산
+            const start = new Date('2000-01-01 ' + startTime);
+            let end = new Date('2000-01-01 ' + endTime);
+            
+            // 자정 넘김 처리
+            if (end < start) {
+                end = new Date(end.getTime() + 24 * 60 * 60 * 1000);
+            }
+            
+            const totalMinutes = (end - start) / (1000 * 60) - breakTime;
+            const totalHours = totalMinutes / 60;
+
+            // 기본 근로시간 (8시간 기준)
+            const baseHours = Math.min(totalHours, 8);
+            const basePay = Math.round(hourlyWage * baseHours);
+
+            // 연장근로
+            let overtimeHours = 0;
+            let overtimePay = 0;
+            if (isOvertime) {
+                overtimeHours = Math.max(0, totalHours - 8);
+                overtimePay = Math.round(hourlyWage * overtimeHours * 1.5);
+            }
+
+            // 야간근로
+            let nightPay = 0;
+            if (isNight && nightHours > 0) {
+                nightPay = Math.round(hourlyWage * nightHours * 0.5); // 50% 가산
+            }
+
+            // 휴일근로
+            let holidayPay = 0;
+            if (isHoliday) {
+                // 휴일근로는 8시간까지 1.5배, 초과분은 2배
+                const holidayBaseHours = Math.min(totalHours, 8);
+                const holidayOvertimeHours = Math.max(0, totalHours - 8);
+                
+                holidayPay = Math.round(hourlyWage * holidayBaseHours * 0.5); // 기본 50% 가산
+                if (holidayOvertimeHours > 0) {
+                    holidayPay += Math.round(hourlyWage * holidayOvertimeHours); // 추가 100% 가산
+                }
+            }
+
+            const extraPay = overtimePay + nightPay + holidayPay;
+            const totalPay = basePay + extraPay;
+
+            // 결과 표시
+            document.getElementById('totalHours').innerHTML = totalHours.toFixed(1) + '<span class="unit">시간</span>';
+            document.getElementById('basePay').innerHTML = basePay.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('extraPay').innerHTML = extraPay.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('totalPay').innerHTML = totalPay.toLocaleString() + '<span class="unit">원</span>';
+
+            // 수당 내역 표시
+            let breakdownHTML = `
+                <tr>
+                    <td>기본 근로</td>
+                    <td>${baseHours.toFixed(1)}시간</td>
+                    <td>-</td>
+                    <td class="amount">${basePay.toLocaleString()}원</td>
+                </tr>
+            `;
+
+            if (isOvertime && overtimeHours > 0) {
+                breakdownHTML += `
+                    <tr>
+                        <td>연장 근로</td>
+                        <td>${overtimeHours.toFixed(1)}시간</td>
+                        <td>50% 가산</td>
+                        <td class="amount">${overtimePay.toLocaleString()}원</td>
+                    </tr>
+                `;
+            }
+
+            if (isNight && nightHours > 0) {
+                breakdownHTML += `
+                    <tr>
+                        <td>야간 근로</td>
+                        <td>${nightHours.toFixed(1)}시간</td>
+                        <td>50% 가산</td>
+                        <td class="amount">${nightPay.toLocaleString()}원</td>
+                    </tr>
+                `;
+            }
+
+            if (isHoliday) {
+                breakdownHTML += `
+                    <tr>
+                        <td>휴일 근로</td>
+                        <td>${totalHours.toFixed(1)}시간</td>
+                        <td>50~100% 가산</td>
+                        <td class="amount">${holidayPay.toLocaleString()}원</td>
+                    </tr>
+                `;
+            }
+
+            breakdownHTML += `
+                <tr class="total-row">
+                    <td colspan="3"><strong>총 합계</strong></td>
+                    <td class="amount"><strong>${totalPay.toLocaleString()}원</strong></td>
+                </tr>
+            `;
+
+            document.getElementById('breakdownBody').innerHTML = breakdownHTML;
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Enter 키로 계산
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    calculateWorkHours();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

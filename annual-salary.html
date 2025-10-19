@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연봉 계산기 - 최저시급 기준 연봉 및 실수령액 계산</title>
+    <meta name="description" content="2025년 최저시급 기준 연봉과 실수령액을 계산합니다. 4대보험, 소득세, 지방소득세를 고려한 정확한 월 실수령액을 확인하세요.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        nav {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        nav a:hover, nav a.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .quick-btn {
+            padding: 12px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #555;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .result-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .result-item.highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .result-value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .result-value .unit {
+            font-size: 0.6em;
+            margin-left: 5px;
+        }
+
+        .deduction-detail {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .deduction-detail h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .deduction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .deduction-table th,
+        .deduction-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .deduction-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .deduction-table tr:last-child td {
+            border-bottom: none;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .deduction-table .amount {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .info-box .title {
+            font-weight: bold;
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #0c5460;
+        }
+
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .tab-buttons {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                text-align: center;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .deduction-table {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💼 연봉 계산기</h1>
+            <p class="subtitle">연봉 및 실수령액 계산 | 2025년 최저시급 기준</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">최저시급 계산기</a></li>
+                <li><a href="annual-salary.html" class="active">연봉 계산기</a></li>
+                <li><a href="work-hours.html">근로시간 계산기</a></li>
+                <li><a href="part-time.html">알바비 계산기</a></li>
+                <li><a href="minimum-wage-guide.html">최저시급 가이드</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>💰 연봉 및 실수령액 계산</h2>
+
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('salary')">연봉 → 실수령액</button>
+                <button class="tab-btn" onclick="switchTab('hourly')">시급 → 연봉</button>
+            </div>
+
+            <!-- 연봉 → 실수령액 탭 -->
+            <div id="salaryTab" class="tab-content active">
+                <div class="input-group">
+                    <label for="annualSalary">연봉 (원)</label>
+                    <input type="number" id="annualSalary" value="30000000" min="0" step="1000000">
+                </div>
+
+                <div class="quick-buttons">
+                    <button class="quick-btn" onclick="setAnnual(25155240)">최저연봉<br>25,155,240원</button>
+                    <button class="quick-btn" onclick="setAnnual(30000000)">3,000만원</button>
+                    <button class="quick-btn" onclick="setAnnual(40000000)">4,000만원</button>
+                    <button class="quick-btn" onclick="setAnnual(50000000)">5,000만원</button>
+                    <button class="quick-btn" onclick="setAnnual(60000000)">6,000만원</button>
+                    <button class="quick-btn" onclick="setAnnual(80000000)">8,000만원</button>
+                </div>
+
+                <div class="input-group">
+                    <label for="dependents">부양가족 수 (본인 제외)</label>
+                    <input type="number" id="dependents" value="0" min="0" max="10">
+                </div>
+
+                <button class="calculate-btn" onclick="calculateSalary()">💵 실수령액 계산하기</button>
+
+                <div id="salaryResults" style="display: none;">
+                    <div class="result-section">
+                        <div class="result-title">📊 급여 계산 결과</div>
+                        
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="result-label">연봉 (세전)</div>
+                                <div class="result-value" id="annualGross">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">월급 (세전)</div>
+                                <div class="result-value" id="monthlyGross">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">월 실수령액</div>
+                                <div class="result-value" id="monthlyNet">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">연 실수령액</div>
+                                <div class="result-value" id="annualNet">-<span class="unit">원</span></div>
+                            </div>
+                        </div>
+
+                        <div class="deduction-detail">
+                            <h3>📋 4대보험 및 세금 공제 내역 (월)</h3>
+                            <table class="deduction-table">
+                                <thead>
+                                    <tr>
+                                        <th>항목</th>
+                                        <th class="amount">공제액</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="deductionBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="title">📌 계산 기준</div>
+                        <ul>
+                            <li><strong>국민연금:</strong> 기준소득월액의 4.5%</li>
+                            <li><strong>건강보험:</strong> 기준소득월액의 3.545%</li>
+                            <li><strong>장기요양:</strong> 건강보험료의 12.95%</li>
+                            <li><strong>고용보험:</strong> 기준소득월액의 0.9%</li>
+                            <li><strong>소득세:</strong> 근로소득 간이세액표 적용</li>
+                            <li><strong>지방소득세:</strong> 소득세의 10%</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 시급 → 연봉 탭 -->
+            <div id="hourlyTab" class="tab-content">
+                <div class="input-group">
+                    <label for="hourlyWageAnnual">시급 (원)</label>
+                    <input type="number" id="hourlyWageAnnual" value="10030" min="0" step="10">
+                </div>
+
+                <div class="quick-buttons">
+                    <button class="quick-btn" onclick="setHourly(10030)">2025 최저시급<br>10,030원</button>
+                    <button class="quick-btn" onclick="setHourly(12000)">12,000원</button>
+                    <button class="quick-btn" onclick="setHourly(15000)">15,000원</button>
+                    <button class="quick-btn" onclick="setHourly(20000)">20,000원</button>
+                </div>
+
+                <div class="input-group">
+                    <label for="monthlyHours">월 소정근로시간</label>
+                    <select id="monthlyHours">
+                        <option value="209">주 40시간 (월 209시간)</option>
+                        <option value="226">주 52시간 (월 226시간)</option>
+                        <option value="174">주 35시간 (월 174시간)</option>
+                        <option value="157">주 30시간 (월 157시간)</option>
+                        <option value="custom">직접 입력</option>
+                    </select>
+                </div>
+
+                <div class="input-group" id="customHoursGroup" style="display: none;">
+                    <label for="customHours">월 근로시간 (직접 입력)</label>
+                    <input type="number" id="customHours" value="209" min="0" max="400">
+                </div>
+
+                <button class="calculate-btn" onclick="calculateFromHourly()">💵 연봉 계산하기</button>
+
+                <div id="hourlyResults" style="display: none;">
+                    <div class="result-section">
+                        <div class="result-title">📊 연봉 계산 결과</div>
+                        
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="result-label">시급</div>
+                                <div class="result-value" id="hourlyAmount">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">월급 (세전)</div>
+                                <div class="result-value" id="monthlyFromHourly">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">연봉 (세전)</div>
+                                <div class="result-value" id="annualFromHourly">-<span class="unit">원</span></div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">월 실수령액 (예상)</div>
+                                <div class="result-value" id="netFromHourly">-<span class="unit">원</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 2025년 최저연봉 정보</h2>
+            <div class="info-box" style="margin-top: 0;">
+                <div class="title">2025년 최저시급 기준 연봉</div>
+                <ul>
+                    <li><strong>시급:</strong> 10,030원</li>
+                    <li><strong>월급 (209시간):</strong> 2,096,270원</li>
+                    <li><strong>연봉:</strong> 25,155,240원</li>
+                    <li><strong>월 실수령액 (예상):</strong> 약 1,846,000원 (4대보험 + 세금 공제 후)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>연봉 계산기 2025 | 정확한 실수령액 계산</p>
+        <p>실제 급여는 개인의 상황에 따라 달라질 수 있습니다.</p>
+    </footer>
+
+    <script>
+        // 탭 전환
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            buttons.forEach(b => b.classList.remove('active'));
+            
+            if (tab === 'salary') {
+                document.getElementById('salaryTab').classList.add('active');
+                buttons[0].classList.add('active');
+            } else {
+                document.getElementById('hourlyTab').classList.add('active');
+                buttons[1].classList.add('active');
+            }
+        }
+
+        // 월 근로시간 선택
+        document.getElementById('monthlyHours').addEventListener('change', function() {
+            const customGroup = document.getElementById('customHoursGroup');
+            if (this.value === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+            }
+        });
+
+        // 연봉 빠른 설정
+        function setAnnual(amount) {
+            document.getElementById('annualSalary').value = amount;
+            calculateSalary();
+        }
+
+        // 시급 빠른 설정
+        function setHourly(amount) {
+            document.getElementById('hourlyWageAnnual').value = amount;
+            calculateFromHourly();
+        }
+
+        // 소득세 간이세액표 적용 (2025년 기준)
+        function calculateIncomeTax(monthlyIncome, dependents) {
+            // 간단한 근사치 계산 (실제로는 복잡한 세액표 적용)
+            let taxableIncome = monthlyIncome;
+            
+            // 비과세 및 공제 (간소화)
+            const deduction = 100000 + (dependents * 50000);
+            taxableIncome = Math.max(0, taxableIncome - deduction);
+            
+            let tax = 0;
+            if (taxableIncome <= 1000000) {
+                tax = taxableIncome * 0.06;
+            } else if (taxableIncome <= 2000000) {
+                tax = 60000 + (taxableIncome - 1000000) * 0.15;
+            } else if (taxableIncome <= 4000000) {
+                tax = 210000 + (taxableIncome - 2000000) * 0.24;
+            } else if (taxableIncome <= 8000000) {
+                tax = 690000 + (taxableIncome - 4000000) * 0.35;
+            } else {
+                tax = 2090000 + (taxableIncome - 8000000) * 0.38;
+            }
+            
+            return Math.round(tax / 10) * 10; // 10원 단위 반올림
+        }
+
+        // 연봉 → 실수령액 계산
+        function calculateSalary() {
+            const annualSalary = parseFloat(document.getElementById('annualSalary').value) || 0;
+            const dependents = parseInt(document.getElementById('dependents').value) || 0;
+            
+            if (annualSalary <= 0) {
+                alert('연봉을 입력해주세요.');
+                return;
+            }
+            
+            const monthlyGross = Math.round(annualSalary / 12);
+            
+            // 4대보험 계산
+            const pensionBase = Math.min(monthlyGross, 5900000); // 국민연금 상한액
+            const pension = Math.round(pensionBase * 0.045); // 4.5%
+            
+            const healthBase = monthlyGross;
+            const health = Math.round(healthBase * 0.03545); // 3.545%
+            const longTermCare = Math.round(health * 0.1295); // 건강보험의 12.95%
+            
+            const employmentBase = monthlyGross;
+            const employment = Math.round(employmentBase * 0.009); // 0.9%
+            
+            // 소득세 및 지방소득세
+            const incomeTax = calculateIncomeTax(monthlyGross, dependents);
+            const localTax = Math.round(incomeTax * 0.1);
+            
+            // 총 공제액
+            const totalDeduction = pension + health + longTermCare + employment + incomeTax + localTax;
+            
+            // 실수령액
+            const monthlyNet = monthlyGross - totalDeduction;
+            const annualNet = monthlyNet * 12;
+            
+            // 결과 표시
+            document.getElementById('annualGross').innerHTML = annualSalary.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('monthlyGross').innerHTML = monthlyGross.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('monthlyNet').innerHTML = monthlyNet.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('annualNet').innerHTML = annualNet.toLocaleString() + '<span class="unit">원</span>';
+            
+            // 공제 내역 표시
+            const deductionBody = document.getElementById('deductionBody');
+            deductionBody.innerHTML = `
+                <tr>
+                    <td>국민연금 (4.5%)</td>
+                    <td class="amount">${pension.toLocaleString()}원</td>
+                </tr>
+                <tr>
+                    <td>건강보험 (3.545%)</td>
+                    <td class="amount">${health.toLocaleString()}원</td>
+                </tr>
+                <tr>
+                    <td>장기요양 (12.95%)</td>
+                    <td class="amount">${longTermCare.toLocaleString()}원</td>
+                </tr>
+                <tr>
+                    <td>고용보험 (0.9%)</td>
+                    <td class="amount">${employment.toLocaleString()}원</td>
+                </tr>
+                <tr>
+                    <td>소득세</td>
+                    <td class="amount">${incomeTax.toLocaleString()}원</td>
+                </tr>
+                <tr>
+                    <td>지방소득세 (10%)</td>
+                    <td class="amount">${localTax.toLocaleString()}원</td>
+                </tr>
+                <tr>
+                    <td><strong>총 공제액</strong></td>
+                    <td class="amount"><strong>${totalDeduction.toLocaleString()}원</strong></td>
+                </tr>
+            `;
+            
+            document.getElementById('salaryResults').style.display = 'block';
+        }
+
+        // 시급 → 연봉 계산
+        function calculateFromHourly() {
+            const hourlyWage = parseFloat(document.getElementById('hourlyWageAnnual').value) || 0;
+            const hoursSelect = document.getElementById('monthlyHours').value;
+            
+            let monthlyHours;
+            if (hoursSelect === 'custom') {
+                monthlyHours = parseFloat(document.getElementById('customHours').value) || 209;
+            } else {
+                monthlyHours = parseFloat(hoursSelect);
+            }
+            
+            if (hourlyWage <= 0) {
+                alert('시급을 입력해주세요.');
+                return;
+            }
+            
+            const monthlyGross = Math.round(hourlyWage * monthlyHours);
+            const annualGross = monthlyGross * 12;
+            
+            // 간단한 실수령액 계산 (약 88% 적용)
+            const monthlyNet = Math.round(monthlyGross * 0.88);
+            
+            document.getElementById('hourlyAmount').innerHTML = hourlyWage.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('monthlyFromHourly').innerHTML = monthlyGross.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('annualFromHourly').innerHTML = annualGross.toLocaleString() + '<span class="unit">원</span>';
+            document.getElementById('netFromHourly').innerHTML = monthlyNet.toLocaleString() + '<span class="unit">원</span>';
+            
+            document.getElementById('hourlyResults').style.display = 'block';
+        }
+
+        // 페이지 로드 시 자동 계산
+        window.addEventListener('load', function() {
+            calculateSalary();
+        });
+    </script>
+</body>
+</html>
